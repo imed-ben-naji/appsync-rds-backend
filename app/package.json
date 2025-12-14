@@ -5,6 +5,7 @@
     "offline": "serverless offline start --config serverless.local.yml",
     "offline:debug": "cross-env SLS_DEBUG=* serverless offline start --config serverless.local.yml",
     "deploy:dev": "serverless deploy --stage dev --verbose",
+    "deploy:qa": "serverless deploy --stage qa --verbose",
     "deploy:prod": "serverless deploy --stage prod --verbose",
     "remove:dev": "serverless remove --stage dev",
     "remove:prod": "serverless remove --stage prod"

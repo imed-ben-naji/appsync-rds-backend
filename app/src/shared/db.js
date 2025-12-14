@@ -7,7 +7,6 @@ let dbClient = null;
 async function getDbConnection() {
   if (dbClient) return dbClient;
 
-  // For local development, use mock credentials
   if (process.env.DB_SECRET_ARN === 'mock-secret-arn') {
     const client = new Client({
       host: process.env.DB_HOST || 'localhost',

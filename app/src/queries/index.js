@@ -18,7 +18,6 @@ exports.handler = async (event) => {
     if (field === "getItem") {
       const { id } = event.arguments;
 
-      // Validate ID
       if (!id || isNaN(id)) {
         throw new Error('Invalid item ID');
       }
