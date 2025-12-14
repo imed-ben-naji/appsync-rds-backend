@@ -1,0 +1,10 @@
+FROM public.ecr.aws/lambda/nodejs:18
+
+COPY app/package*.json ${LAMBDA_TASK_ROOT}/
+
+RUN npm ci --production
+
+COPY app/src/shared/ ${LAMBDA_TASK_ROOT}/src/shared/
+COPY app/src/mutations/ ${LAMBDA_TASK_ROOT}/src/mutations/
+
+CMD ["src/mutations/index.handler"]
