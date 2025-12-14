@@ -1,4 +1,8 @@
 name: deploy-qa.yml
 on:
+  push:
+    branches:
+      - main
+
 
 jobs:
