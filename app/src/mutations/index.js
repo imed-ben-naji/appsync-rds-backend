@@ -8,13 +8,11 @@ exports.handler = async (event) => {
     const client = await getDbConnection();
     const field = event.info.fieldName;
 
-    // Ensure table exists (only needed on first run)
     await ensureTableExists(client);
 
     if (field === "createItem") {
       const { name, description } = event.arguments;
 
-      // Validate input
       validateItemInput(name, description);
 
       const res = await client.query(
@@ -28,12 +26,10 @@ exports.handler = async (event) => {
     if (field === "updateItem") {
       const { id, name, description } = event.arguments;
 
-      // Validate ID
       if (!id || isNaN(id)) {
         throw new Error('Invalid item ID');
       }
 
-      // Validate input if provided
       if (name !== undefined) {
         validateItemInput(name, description);
       }
@@ -58,7 +54,6 @@ exports.handler = async (event) => {
     if (field === "deleteItem") {
       const { id } = event.arguments;
 
-      // Validate ID
       if (!id || isNaN(id)) {
         throw new Error('Invalid item ID');
       }
