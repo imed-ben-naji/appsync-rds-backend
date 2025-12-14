@@ -1,0 +1,68 @@
+service: appsync-rds-backend
+
+custom:
+  company: demo
+  project: appsync-rds-backend
+  appsync-simulator:
+    watch: false
+    apiKey: da2-fakeApiId123456
+  appSync:
+    name: ${self:provider.stage}-${self:custom.project}-api
+    authenticationType: API_KEY
+    apiKeys:
+      - name: defaultKey
+        description: Default API Key
+        expiresAfter: 30d
+    schema: schema.graphql
+    dataSources:
+      - type: AWS_LAMBDA
+        name: ItemQueriesLambdaDS
+        description: Lambda DataSource for Item Query Operations
+        config:
+          functionName: itemQueries
+      - type: AWS_LAMBDA
+        name: ItemMutationsLambdaDS
+        description: Lambda DataSource for Item Mutation Operations
+        config:
+          functionName: itemMutations
+    mappingTemplates:
+      - dataSource: ItemQueriesLambdaDS
+        type: Query
+        field: getItem
+      - dataSource: ItemQueriesLambdaDS
+        type: Query
+        field: listItems
+      - dataSource: ItemMutationsLambdaDS
+        type: Mutation
+        field: createItem
+      - dataSource: ItemMutationsLambdaDS
+        type: Mutation
+        field: updateItem
+      - dataSource: ItemMutationsLambdaDS
+        type: Mutation
+        field: deleteItem
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: eu-west-1
+  environment:
+    DB_ENDPOINT: localhost:5432
+    DB_SECRET_ARN: mock-secret-arn
+    DB_NAME: localdb
+
+plugins:
+  - serverless-appsync-plugin
+  - serverless-appsync-simulator
+  - serverless-offline
+
+functions:
+  itemQueries:
+    handler: src/queries/index.handler
+    timeout: 30
+    memorySize: 256
+  itemMutations:
+    handler: src/mutations/index.handler
+    timeout: 30
+    memorySize: 256
