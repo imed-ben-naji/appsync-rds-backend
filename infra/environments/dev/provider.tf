@@ -13,7 +13,7 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket = "dev-terraform-artifacts"
-    key    = "serverless-rds-api/dev/terraform.tfstate"
+    key    = "appsync-rds-backend/dev/terraform.tfstate"
     region = "eu-west-1"
   }
 }
