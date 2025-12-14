@@ -1,0 +1,106 @@
+service: appsync-rds-backend
+
+custom:
+  company: demo
+  project: appsync-rds-backend
+  appsync-simulator:
+    watch: false
+    apiKey: da2-fakeApiId123456
+  appSync:
+    name: ${self:provider.stage}-${self:custom.project}-api
+    authenticationType: API_KEY
+    apiKeys:
+      - name: defaultKey
+        description: Default API Key
+        expiresAfter: 30d
+    schema: schema.graphql
+    dataSources:
+      - type: AWS_LAMBDA
+        name: ItemLambdaDS
+        description: Lambda DataSource for Item Operations
+        config:
+          functionName: mainHandler
+    mappingTemplates:
+      - dataSource: ItemLambdaDS
+        type: Query
+        field: getItem
+      - dataSource: ItemLambdaDS
+        type: Query
+        field: listItems
+      - dataSource: ItemLambdaDS
+        type: Mutation
+        field: createItem
+      - dataSource: ItemLambdaDS
+        type: Mutation
+        field: updateItem
+      - dataSource: ItemLambdaDS
+        type: Mutation
+        field: deleteItem
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  ecr:
+    images:
+      queries-image:
+        path: ../
+        file: docker/Dockerfile.queries
+      mutations-image:
+        path: ../
+        file: docker/Dockerfile.mutations
+
+  environment:
+    DB_SECRET_ARN: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/db_secret_arn}
+    DB_NAME: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/db_name}
+
+  vpc:
+    securityGroupIds:
+      - ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/lambda_sg_id}
+      - ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/aurora_sg_client_id
+    subnetIds: ${ssm(raw):/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/private_subnet_ids}
+
+
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: "*"
+
+plugins:
+  - serverless-appsync-plugin
+  - serverless-appsync-simulator
+  - serverless-offline
+
+functions:
+  itemQueries:
+    image:
+      name: queries-image
+    timeout: 30
+    memorySize: 512
+    environment:
+      DB_ENDPOINT: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/reader_db_endpoint}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/db_secret_arn}
+
+  itemMutations:
+    image:
+      name: mutations-image
+    timeout: 30
+    memorySize: 256
+    environment:
+      DB_ENDPOINT: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/writer_db_endpoint}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource: ${ssm:/${self:custom.company}/${self:custom.project}/${self:provider.stage}/infra/db_secret_arn}
