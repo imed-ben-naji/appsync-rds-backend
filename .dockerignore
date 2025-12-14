@@ -1,0 +1,8 @@
+app/node_modules
+.serverless
+.git
+.gitignore
+README.md
+.env
+*.log
+.DS_Store
