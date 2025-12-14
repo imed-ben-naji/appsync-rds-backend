@@ -1,5 +1,5 @@
 aws_region   = "eu-west-1"
-project_name = "serverless-rds-api"
+project_name = "appsync-rds-backend"
 environment  = "dev"
 company_name = "demo"
 
