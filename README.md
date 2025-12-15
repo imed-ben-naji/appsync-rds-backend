@@ -309,7 +309,6 @@ The project includes automated deployments via GitHub Actions:
 **Required GitHub Secrets:**
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
 
 For detailed deployment instructions, see **[Deployment Guide →](./docs/DEPLOYMENT.md)**
 
